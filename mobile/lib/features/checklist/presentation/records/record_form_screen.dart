@@ -156,15 +156,11 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
                         return DropdownButtonFormField<String>(
                           value: validSchoolId,
                           decoration: const InputDecoration(
-                            labelText: 'Trường / Bếp (tuỳ chọn)',
+                            labelText: 'Trường / Bếp (bắt buộc)',
                             prefixIcon: Icon(Icons.school_outlined),
                           ),
                           isExpanded: true,
                           items: [
-                            const DropdownMenuItem<String>(
-                              value: null,
-                              child: Text('Không chọn'),
-                            ),
                             ...schools.map((s) => DropdownMenuItem(
                                   value: s.id,
                                   child: Text(s.name,
@@ -301,6 +297,36 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
         const SnackBar(content: Text('Vui lòng chọn template')),
       );
       return;
+    }
+    if (_selectedSchoolId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn Trường / Bếp')),
+      );
+      return;
+    }
+
+    if (_isEditMode) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Ghi đè bản ghi?'),
+          content: const Text('Bạn có muốn ghi đè lại thông tin bản ghi này không?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Huỷ'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.red.shade600,
+              ),
+              child: const Text('Ghi đè'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
     }
 
     setState(() => _isSaving = true);
