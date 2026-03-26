@@ -45,17 +45,14 @@ class _MainShellState extends ConsumerState<MainShell> {
 
     return Scaffold(
       body: widget.child,
-      floatingActionButton: SizedBox(
-        width: 56,
-        height: 56,
-        child: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
           onPressed: () => context.push('/records/form'),
-          shape: const CircleBorder(),
           backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
           elevation: 4,
-          child: const Icon(Icons.add_rounded, size: 28, color: Colors.white),
+          icon: const Icon(Icons.add_rounded, size: 22),
+          label: const Text('Tạo phiếu', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
         ),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

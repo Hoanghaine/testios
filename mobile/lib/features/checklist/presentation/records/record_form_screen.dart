@@ -72,10 +72,10 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          _isEditMode ? 'Sửa phiếu kiểm tra' : 'Tạo phiếu kiểm tra',
+          _isEditMode ? 'Sửa phiếu' : 'Tạo phiếu kiểm tra',
           style: GoogleFonts.beVietnamPro(
             fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontSize: 17,
           ),
         ),
         actions: [
@@ -95,6 +95,7 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
             label: const Text('Hoàn thành'),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
             ),
           ),
           const SizedBox(width: 8),

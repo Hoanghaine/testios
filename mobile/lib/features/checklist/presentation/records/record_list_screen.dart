@@ -8,6 +8,7 @@ import 'package:checklist_management/core/theme/app_theme.dart';
 import 'package:checklist_management/features/checklist/data/models/record_models.dart';
 import 'package:checklist_management/features/checklist/providers/checklist_providers.dart';
 import 'package:checklist_management/features/checklist/data/repositories/record_repository.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RecordListScreen extends ConsumerStatefulWidget {
   final String? templateId;
@@ -190,6 +191,9 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
                         onTap: () => context
                             .push('/records/form?recordId=${record.id}'),
                         onExport: () => _exportRecord(record),
+                        onDownload: record.exportedFileS3Key != null
+                            ? () => _downloadRecord(record)
+                            : null,
                         onDelete: () => _confirmDelete(record),
                       )
                           .animate()
@@ -226,6 +230,20 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã xuất Excel thành công')),
       );
+    }
+  }
+
+  Future<void> _downloadRecord(ChecklistRecord record) async {
+    try {
+      final repo = ref.read(recordRepositoryProvider);
+      final url = await repo.getRecordDownloadUrl(record.id);
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể tải file')),
+        );
+      }
     }
   }
 
@@ -267,12 +285,14 @@ class _RecordCard extends StatelessWidget {
   final ChecklistRecord record;
   final VoidCallback onTap;
   final VoidCallback? onExport;
+  final VoidCallback? onDownload;
   final VoidCallback onDelete;
 
   const _RecordCard({
     required this.record,
     required this.onTap,
     this.onExport,
+    this.onDownload,
     required this.onDelete,
   });
 
@@ -393,6 +413,15 @@ class _RecordCard extends StatelessWidget {
                       label: record.exportedFileS3Key != null ? 'Xuất lại' : 'Xuất Excel',
                       color: AppColors.warning,
                       onTap: onExport!,
+                    ),
+                  ],
+                  if (record.exportedFileS3Key != null && onDownload != null) ...[
+                    const SizedBox(width: 8),
+                    _ActionChip(
+                      icon: Icons.download_rounded,
+                      label: 'Tải Excel',
+                      color: AppColors.info,
+                      onTap: onDownload!,
                     ),
                   ],
                   const Spacer(),
