@@ -364,7 +364,7 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
             content: const Text('Đã hoàn thành'),
           ),
         );
-        context.pop();
+        context.go('/records');
       }
     } catch (e) {
       if (mounted) {
