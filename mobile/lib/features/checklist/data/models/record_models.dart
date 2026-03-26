@@ -11,6 +11,7 @@ class ChecklistRecord {
   final Map<String, dynamic> data;
   final ChecklistSchema? schemaData;
   final String? exportedFileS3Key;
+  final String? name;
   final String status; // DRAFT, COMPLETED, EXPORTED
   final String? note;
   final String? createdAt;
@@ -28,6 +29,7 @@ class ChecklistRecord {
     required this.data,
     this.schemaData,
     this.exportedFileS3Key,
+    this.name,
     required this.status,
     this.note,
     this.createdAt,
@@ -49,6 +51,7 @@ class ChecklistRecord {
           ? ChecklistSchema.fromJson(json['schemaData'] as Map<String, dynamic>)
           : null,
       exportedFileS3Key: json['exportedFileS3Key'] as String?,
+      name: json['name'] as String?,
       status: json['status'] as String? ?? 'DRAFT',
       note: json['note'] as String?,
       createdAt: parseDate(json['createdAt']),
