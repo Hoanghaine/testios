@@ -1,0 +1,19 @@
+flutter : Error: No 
+pubspec.yaml file found.
+At line:1 char:27
++ Set-Location "$env:TEMP"; 
+flutter build apk --debug 
+2>&1 | ForEach-Ob ...
++                           ~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Error:   
+  No pubspec.yaml file fou   
+ nd.:String) [], RemoteEx    
+ception
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+This command should be run 
+from the root of your 
+Flutter project.

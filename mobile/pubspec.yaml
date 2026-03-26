@@ -1,0 +1,87 @@
+name: checklist_management
+description: "Checklist Management - Mobile App for Ban Mai Vietnam"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # HTTP & API
+  dio: ^5.7.0
+  retrofit: ^4.4.1
+  retrofit_generator: ^9.1.2
+
+  # Auth (in-memory for dev, add flutter_secure_storage for production native builds)
+  flutter_secure_storage: ^9.2.3
+  webview_flutter: ^4.10.0
+  crypto: ^3.0.6
+  jwt_decoder: ^2.0.1
+  equatable: ^2.0.7
+  flutter_dotenv: ^5.2.1
+
+  # UI & Design
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.2
+  shimmer: ^3.0.0
+  gap: ^3.0.1
+  flutter_svg: ^2.0.17
+  cached_network_image: ^3.4.1
+
+  # Utilities
+  intl: ^0.20.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Data Models
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Camera & Image
+  image_picker: ^1.1.2
+
+  # File download
+  url_launcher: ^6.3.1
+  path_provider: ^2.1.5
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  riverpod_generator: ^2.6.3
+  freezed: ^2.5.8
+  json_serializable: ^6.9.4
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.6
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/icon/
+    - .env
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
+  web:
+    generate: false
