@@ -1385,17 +1385,20 @@ class _ImageFieldState extends State<_ImageField> {
 
   Future<void> _pickImages() async {
     final picker = ImagePicker();
+    final hasCamera = await picker.supportsImageSource(ImageSource.camera);
+
     // Show bottom sheet for camera vs gallery
     final source = await showModalBottomSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Wrap(
           children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_rounded),
-              title: const Text('Chụp ảnh'),
-              onTap: () => Navigator.pop(ctx, 'camera'),
-            ),
+            if (hasCamera)
+              ListTile(
+                leading: const Icon(Icons.camera_alt_rounded),
+                title: const Text('Chụp ảnh'),
+                onTap: () => Navigator.pop(ctx, 'camera'),
+              ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded),
               title: const Text('Chọn từ thư viện (nhiều ảnh)'),
@@ -1409,38 +1412,46 @@ class _ImageFieldState extends State<_ImageField> {
 
     setState(() => _isLoading = true);
 
-    if (source == 'camera') {
-      final image = await picker.pickImage(
-        source: ImageSource.camera,
-        maxWidth: 1200,
-        imageQuality: 85,
-      );
-      if (image != null) {
-        final bytes = await image.readAsBytes();
-        final mimeType = image.name.endsWith('.png') ? 'image/png' : 'image/jpeg';
-        final dataUri = 'data:$mimeType;base64,${base64Encode(bytes)}';
-        setState(() {
+    try {
+      if (source == 'camera') {
+        final image = await picker.pickImage(
+          source: ImageSource.camera,
+          maxWidth: 1200,
+          imageQuality: 85,
+        );
+        if (image != null) {
+          final bytes = await image.readAsBytes();
+          final mimeType = image.name.endsWith('.png') ? 'image/png' : 'image/jpeg';
+          final dataUri = 'data:$mimeType;base64,${base64Encode(bytes)}';
+          setState(() {
+            _images.add(dataUri);
+            _imageBytes.add(bytes);
+          });
+          widget.onImagesChanged(List.from(_images));
+        }
+      } else {
+        // Gallery — pick multiple
+        final images = await picker.pickMultiImage(
+          maxWidth: 1200,
+          imageQuality: 85,
+        );
+        for (final image in images) {
+          final bytes = await image.readAsBytes();
+          final mimeType = image.name.endsWith('.png') ? 'image/png' : 'image/jpeg';
+          final dataUri = 'data:$mimeType;base64,${base64Encode(bytes)}';
           _images.add(dataUri);
           _imageBytes.add(bytes);
-        });
-        widget.onImagesChanged(List.from(_images));
+        }
+        if (images.isNotEmpty) {
+          setState(() {});
+          widget.onImagesChanged(List.from(_images));
+        }
       }
-    } else {
-      // Gallery — pick multiple
-      final images = await picker.pickMultiImage(
-        maxWidth: 1200,
-        imageQuality: 85,
-      );
-      for (final image in images) {
-        final bytes = await image.readAsBytes();
-        final mimeType = image.name.endsWith('.png') ? 'image/png' : 'image/jpeg';
-        final dataUri = 'data:$mimeType;base64,${base64Encode(bytes)}';
-        _images.add(dataUri);
-        _imageBytes.add(bytes);
-      }
-      if (images.isNotEmpty) {
-        setState(() {});
-        widget.onImagesChanged(List.from(_images));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Không thể chọn ảnh: $e')),
+        );
       }
     }
 
