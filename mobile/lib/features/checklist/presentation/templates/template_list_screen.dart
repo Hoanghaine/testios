@@ -39,7 +39,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Templates',
+          'Danh sách Checklist',
           style: GoogleFonts.beVietnamPro(
             fontWeight: FontWeight.w700,
             fontSize: 22,
@@ -62,7 +62,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Tìm kiếm template...',
+                hintText: 'Tìm kiếm checklist...',
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 suffixIcon: _search != null && _search!.isNotEmpty
                     ? IconButton(
@@ -125,7 +125,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
                                 : AppColors.textSecondaryLight),
                         const SizedBox(height: 12),
                         Text(
-                          'Chưa có template nào',
+                          'Chưa có checklist nào',
                           style: GoogleFonts.nunito(
                             fontSize: 16,
                             color: isDark
@@ -212,7 +212,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Tạo template mới',
+              'Tạo checklist mới',
               style: GoogleFonts.beVietnamPro(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -221,7 +221,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
             const SizedBox(height: 20),
             TextField(
               controller: nameCtl,
-              decoration: const InputDecoration(labelText: 'Tên template *'),
+              decoration: const InputDecoration(labelText: 'Tên checklist *'),
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 12),
@@ -256,7 +256,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Chức năng tạo template cần upload file Excel'),
+                          content: Text('Chức năng tạo checklist cần upload file Excel'),
                         ),
                       );
                     },
@@ -308,7 +308,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Sửa template',
+              'Sửa checklist',
               style: GoogleFonts.beVietnamPro(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -317,7 +317,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
             const SizedBox(height: 20),
             TextField(
               controller: nameCtl,
-              decoration: const InputDecoration(labelText: 'Tên template *'),
+              decoration: const InputDecoration(labelText: 'Tên checklist *'),
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 12),
@@ -371,7 +371,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xoá template?'),
+        title: const Text('Xoá checklist?'),
         content: Text('Bạn có chắc muốn xoá "${template.name}"?'),
         actions: [
           TextButton(
@@ -386,7 +386,7 @@ class _TemplateListScreenState extends ConsumerState<TemplateListScreen> {
                   .deleteTemplate(template.id);
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đã xoá template')),
+                  const SnackBar(content: Text('Đã xoá checklist')),
                 );
               }
             },

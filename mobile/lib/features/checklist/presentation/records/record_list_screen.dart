@@ -54,7 +54,7 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Bản ghi',
+          'Lịch sử kiểm tra',
           style: GoogleFonts.beVietnamPro(
             fontWeight: FontWeight.w700,
             fontSize: 22,
@@ -81,7 +81,7 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
                     error: (_, __) => const SizedBox.shrink(),
                     data: (templates) => _FilterDropdown(
                       value: _templateFilter,
-                      hint: 'Lọc template',
+                      hint: 'Lọc checklist',
                       icon: Icons.description_outlined,
                       items: templates.elements
                           .map((t) => DropdownMenuItem(
@@ -164,7 +164,7 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
                                 : AppColors.textSecondaryLight),
                         const SizedBox(height: 12),
                         Text(
-                          'Chưa có bản ghi nào',
+                          'Chưa có phiếu kiểm tra nào',
                           style: GoogleFonts.nunito(
                             fontSize: 16,
                             color: isDark
@@ -211,7 +211,7 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
           context.push('/records/form$query');
         },
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Tạo bản ghi'),
+        label: const Text('Tạo phiếu'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -233,8 +233,8 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xoá bản ghi?'),
-        content: const Text('Bạn có chắc muốn xoá bản ghi này?'),
+        title: const Text('Xoá phiếu kiểm tra?'),
+        content: const Text('Bạn có chắc muốn xoá phiếu kiểm tra này?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -248,7 +248,7 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
                   .deleteRecord(record.id);
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đã xoá bản ghi')),
+                  const SnackBar(content: Text('Đã xoá phiếu kiểm tra')),
                 );
               }
             },

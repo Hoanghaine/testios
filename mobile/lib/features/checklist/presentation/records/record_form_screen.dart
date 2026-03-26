@@ -72,7 +72,7 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          _isEditMode ? 'Sửa bản ghi' : 'Tạo bản ghi mới',
+          _isEditMode ? 'Sửa phiếu kiểm tra' : 'Tạo phiếu kiểm tra',
           style: GoogleFonts.beVietnamPro(
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -114,7 +114,7 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
                     // Template selector
                     templatesAsync.when(
                       loading: () => const LinearProgressIndicator(),
-                      error: (_, __) => const Text('Lỗi tải template'),
+                      error: (_, __) => const Text('Lỗi tải checklist'),
                       data: (templates) {
                         final validId = templates.elements.any((t) => t.id == _selectedTemplateId)
                             ? _selectedTemplateId
@@ -122,7 +122,7 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
                         return DropdownButtonFormField<String>(
                           value: validId,
                           decoration: const InputDecoration(
-                            labelText: 'Template',
+                            labelText: 'Checklist',
                             prefixIcon: Icon(Icons.description_outlined),
                           ),
                           isExpanded: true,
@@ -193,11 +193,11 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
             if (_isEditMode && recordDetailAsync != null)
               recordDetailAsync.when(
                 loading: () => _buildLoadingState(),
-                error: (err, _) => _buildErrorState('Lỗi tải bản ghi'),
+                error: (err, _) => _buildErrorState('Lỗi tải phiếu kiểm tra'),
                 data: (record) {
                   if (record.schemaData == null) {
                     return _buildEmptyState(
-                        'Không tìm thấy schema cho bản ghi này');
+                        'Không tìm thấy schema cho phiếu này');
                   }
                   return DynamicFormRenderer(
                     schema: record.schemaData!,
@@ -211,13 +211,13 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
               templateDetailAsync.when(
                 loading: () => _buildLoadingState(),
                 error: (err, stack) {
-                    return _buildErrorState('Lỗi tải template: $err');
+                    return _buildErrorState('Lỗi tải checklist: $err');
                 },
                 data: (detail) {
                   final schema = detail.latestVersion?.schemaData;
                   if (schema == null) {
                     return _buildEmptyState(
-                        'Template này chưa có schema. Vui lòng kiểm tra lại.');
+                        'Checklist này chưa có schema. Vui lòng kiểm tra lại.');
                   }
                   return DynamicFormRenderer(
                     schema: schema,
@@ -228,7 +228,7 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
                 },
               )
             else
-              _buildEmptyState('Vui lòng chọn template để bắt đầu điền dữ liệu'),
+              _buildEmptyState('Vui lòng chọn checklist để bắt đầu điền dữ liệu'),
 
             // Export button (edit mode only)
             if (_isEditMode) ...[
@@ -294,7 +294,7 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
   Future<void> _handleSave(String status) async {
     if (_selectedTemplateId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng chọn template')),
+        const SnackBar(content: Text('Vui lòng chọn checklist')),
       );
       return;
     }
@@ -309,8 +309,8 @@ class _RecordFormScreenState extends ConsumerState<RecordFormScreen> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Ghi đè bản ghi?'),
-          content: const Text('Bạn có muốn ghi đè lại thông tin bản ghi này không?'),
+          title: const Text('Ghi đè phiếu kiểm tra?'),
+          content: const Text('Bạn có muốn ghi đè lại thông tin phiếu kiểm tra này không?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),

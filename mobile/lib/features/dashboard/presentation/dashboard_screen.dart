@@ -108,7 +108,7 @@ class _DashboardContent extends StatelessWidget {
             children: [
               Expanded(
                 child: _StatCard(
-                  title: 'Templates',
+                  title: 'Checklist',
                   value: totalTemplates,
                   icon: Icons.description_rounded,
                   gradient: const [Color(0xFFD71717), Color(0xFFEF4444)],
@@ -117,7 +117,7 @@ class _DashboardContent extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _StatCard(
-                  title: 'Bản ghi',
+                  title: 'Phiếu kiểm tra',
                   value: totalRecords,
                   icon: Icons.checklist_rounded,
                   gradient: const [Color(0xFFB91C1C), Color(0xFFDC2626)],
@@ -138,7 +138,7 @@ class _DashboardContent extends StatelessWidget {
 
           // Template breakdown
           Text(
-            'Chi tiết theo Template',
+            'Chi tiết theo Checklist',
             style: GoogleFonts.nunito(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -154,7 +154,7 @@ class _DashboardContent extends StatelessWidget {
                 padding: const EdgeInsets.all(32),
                 child: Center(
                   child: Text(
-                    'Chưa có template nào',
+                    'Chưa có checklist nào',
                     style: GoogleFonts.nunito(
                       color: Colors.grey,
                       fontSize: 14,
