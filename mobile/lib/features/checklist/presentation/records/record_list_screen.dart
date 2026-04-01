@@ -20,14 +20,48 @@ class RecordListScreen extends ConsumerStatefulWidget {
 
 class _RecordListScreenState extends ConsumerState<RecordListScreen> {
   int _page = 0;
-  final int _pageSize = 20;
+  final int _pageSize = 10;
   String? _templateFilter;
   String? _schoolFilter;
+  final List<ChecklistRecord> _allRecords = [];
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _templateFilter = widget.templateId;
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        _hasMore &&
+        !_isLoadingMore) {
+      setState(() {
+        _isLoadingMore = true;
+        _page++;
+      });
+    }
+  }
+
+  void _resetList() {
+    setState(() {
+      _allRecords.clear();
+      _page = 0;
+      _hasMore = true;
+      _isLoadingMore = false;
+    });
+    ref.invalidate(recordListProvider);
   }
 
   static const _statusMap = {
@@ -52,6 +86,18 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
     );
     final schoolsAsync = ref.watch(schoolListProvider);
 
+    // Accumulate records when data arrives
+    recordsAsync.whenData((pagedData) {
+      final existingIds = _allRecords.map((r) => r.id).toSet();
+      for (final record in pagedData.elements) {
+        if (!existingIds.contains(record.id)) {
+          _allRecords.add(record);
+        }
+      }
+      _hasMore = pagedData.hasNext;
+      _isLoadingMore = false;
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -64,7 +110,7 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => ref.invalidate(recordListProvider),
+            onPressed: _resetList,
           ),
         ],
       ),
@@ -75,7 +121,6 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: Row(
               children: [
-                // Template filter
                 Expanded(
                   child: templatesAsync.when(
                     loading: () => const LinearProgressIndicator(),
@@ -87,21 +132,17 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
                       items: templates.elements
                           .map((t) => DropdownMenuItem(
                                 value: t.id,
-                                child: Text(
-                                  t.name,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                child: Text(t.name, overflow: TextOverflow.ellipsis),
                               ))
                           .toList(),
-                      onChanged: (v) => setState(() {
+                      onChanged: (v) {
                         _templateFilter = v;
-                        _page = 0;
-                      }),
+                        _resetList();
+                      },
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                // School filter
                 Expanded(
                   child: schoolsAsync.when(
                     loading: () => const LinearProgressIndicator(),
@@ -113,16 +154,13 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
                       items: schools
                           .map((s) => DropdownMenuItem(
                                 value: s.id,
-                                child: Text(
-                                  s.name,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                child: Text(s.name, overflow: TextOverflow.ellipsis),
                               ))
                           .toList(),
-                      onChanged: (v) => setState(() {
+                      onChanged: (v) {
                         _schoolFilter = v;
-                        _page = 0;
-                      }),
+                        _resetList();
+                      },
                     ),
                   ),
                 ),
@@ -130,88 +168,75 @@ class _RecordListScreenState extends ConsumerState<RecordListScreen> {
             ),
           ),
 
-          // Records List
+          // Records List with infinite scroll
           Expanded(
-            child: recordsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.error_outline_rounded,
-                        size: 48, color: AppColors.expense),
-                    const SizedBox(height: 12),
-                    Text('Không thể tải dữ liệu',
-                        style: GoogleFonts.nunito(fontSize: 16)),
-                    const SizedBox(height: 8),
-                    TextButton.icon(
-                      onPressed: () => ref.invalidate(recordListProvider),
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('Thử lại'),
-                    ),
-                  ],
-                ),
-              ),
-              data: (pagedData) {
-                if (pagedData.elements.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.inbox_rounded,
-                            size: 64,
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Chưa có phiếu kiểm tra nào',
-                          style: GoogleFonts.nunito(
-                            fontSize: 16,
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
+            child: _allRecords.isEmpty && !recordsAsync.isLoading
+                ? recordsAsync.when(
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (err, _) => Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.error_outline_rounded, size: 48, color: AppColors.expense),
+                          const SizedBox(height: 12),
+                          Text('Không thể tải dữ liệu', style: GoogleFonts.nunito(fontSize: 16)),
+                          const SizedBox(height: 8),
+                          TextButton.icon(
+                            onPressed: _resetList,
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: const Text('Thử lại'),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () async =>
-                      ref.invalidate(recordListProvider),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
-                    itemCount: pagedData.elements.length,
-                    itemBuilder: (context, index) {
-                      final record = pagedData.elements[index];
-                      return _RecordCard(
-                        record: record,
-                        onTap: () => context
-                            .push('/records/form?recordId=${record.id}'),
-                        onExport: () => _exportRecord(record),
-                        onDownload: record.exportedFileS3Key != null
-                            ? () => _downloadRecord(record)
-                            : null,
-                        onDelete: () => _confirmDelete(record),
-                      )
-                          .animate()
-                          .fadeIn(delay: (index * 40).ms)
-                          .slideX(begin: 0.05);
-                    },
-                  ),
-                );
-              },
-            ),
+                    data: (_) => Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.inbox_rounded, size: 64,
+                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                          const SizedBox(height: 12),
+                          Text('Chưa có phiếu kiểm tra nào',
+                            style: GoogleFonts.nunito(fontSize: 16,
+                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)),
+                        ],
+                      ),
+                    ),
+                  )
+                : _allRecords.isEmpty && recordsAsync.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : RefreshIndicator(
+                        onRefresh: () async => _resetList(),
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                          itemCount: _allRecords.length + (_hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index >= _allRecords.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(child: CircularProgressIndicator()),
+                              );
+                            }
+                            final record = _allRecords[index];
+                            return _RecordCard(
+                              record: record,
+                              onTap: () => context.push('/records/form?recordId=${record.id}'),
+                              onExport: () => _exportRecord(record),
+                              onDownload: record.exportedFileS3Key != null
+                                  ? () => _downloadRecord(record)
+                                  : null,
+                              onDelete: () => _confirmDelete(record),
+                            ).animate().fadeIn(delay: (index * 40).ms).slideX(begin: 0.05);
+                          },
+                        ),
+                      ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          final query = _templateFilter != null
-              ? '?templateId=$_templateFilter'
-              : '';
+          final query = _templateFilter != null ? '?templateId=$_templateFilter' : '';
           context.push('/records/form$query');
         },
         icon: const Icon(Icons.add_rounded),

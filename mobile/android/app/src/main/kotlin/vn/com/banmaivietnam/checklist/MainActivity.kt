@@ -1,4 +1,4 @@
-package com.example.qlct
+package vn.com.banmaivietnam.checklist
 
 import io.flutter.embedding.android.FlutterActivity
 
