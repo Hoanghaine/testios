@@ -29,6 +29,8 @@ class ApiClient {
   final AuthService authService;
 
   ApiClient({required this.authService}) {
+    final isNgrok = AppConfig.apiBaseUrl.contains('ngrok');
+
     _dio = Dio(
       BaseOptions(
         baseUrl: AppConfig.apiBaseUrl,
@@ -38,6 +40,9 @@ class ApiClient {
         headers: {
           'Accept': 'application/json',
           'Accept-Language': 'vi',
+          // Ngrok shows interstitial HTML page without this header,
+          // causing JSON parse failures — especially on iOS
+          if (isNgrok) 'ngrok-skip-browser-warning': 'true',
         },
       ),
     );
